@@ -1,29 +1,27 @@
-import React from 'react';
-import { Formik, Form } from 'formik';
-import { Box, Button, Flex, Link } from '@chakra-ui/react';
-import { Wrapper } from '../components/Wrapper';
-import { InputField } from '../components/InputField';
+import { Box, Button } from '@chakra-ui/react';
+import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
-import NextLink from 'next/link';
+import React from 'react';
+import { InputField } from '../components/InputField';
 import Layout from '../components/Layout';
+import { sendRequest } from '../tools/sendRequest';
+import { toErrorMap } from '../utils/toErrorMap';
 
-export const Login: React.FC<unknown> = () => {
+const Login: React.FC<{}> = () => {
   const router = useRouter();
   return (
     <Layout variant="small">
       <Formik
         initialValues={{ username: '', password: '' }}
         onSubmit={async (values, { setErrors }) => {
-          // const response = await login(values);
-          // if (response.data?.login.errors) {
-          //   setErrors(toErrorMap(response.data.login.errors));
-          // } else if (response.data?.login.user) {
-          //   if (typeof router.query.next === 'string') {
-          //     router.push(router.query.next);
-          //   } else {
-          //     router.push('/');
-          //   }
-          // }
+          try {
+            const response = await sendRequest(`http://localhost:4000/auth`, values);
+            if (response.errors) {
+              setErrors(toErrorMap(response.errors));
+            } else {
+              router.push('/');
+            }
+          } catch (err) {}
         }}
       >
         {({ isSubmitting }) => (

@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import { InputField } from '../components/InputField';
 import Layout from '../components/Layout';
+import { sendRequest } from '../tools/sendRequest';
+import { toErrorMap } from '../utils/toErrorMap';
 
 export const Register: React.FC<unknown> = () => {
   const router = useRouter();
@@ -12,36 +14,23 @@ export const Register: React.FC<unknown> = () => {
       <Formik
         initialValues={{ username: '', password: '' }}
         onSubmit={async (values, { setErrors }) => {
-          // const response = await register({ options: values });
-          // if (response.data?.register.errors) {
-          //   setErrors(toErrorMap(response.data.register.errors));
-          // } else if (response.data?.register.user) {
-          //   // worked
-          //   router.push('/');
-          // }
+          try {
+            const response = await sendRequest(`http://localhost:4000/register`, values);
+            if (response.errors) {
+              setErrors(toErrorMap(response.errors));
+            } else {
+              router.push('/');
+            }
+          } catch (err) {}
         }}
       >
         {({ isSubmitting }) => (
           <Form>
-            <InputField
-              name="username"
-              placeholder="Username"
-              label="Username"
-            />
+            <InputField name="username" placeholder="Username" label="Username" />
             <Box mt={4}>
-              <InputField
-                name="password"
-                placeholder="password"
-                label="Password"
-                type="password"
-              />
+              <InputField name="password" placeholder="password" label="Password" type="password" />
             </Box>
-            <Button
-              mt={4}
-              type="submit"
-              colorScheme="teal"
-              isLoading={isSubmitting}
-            >
+            <Button mt={4} type="submit" colorScheme="teal" isLoading={isSubmitting}>
               Register
             </Button>
           </Form>
